@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Nói Tiếng Anh</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px;
+        }
+        h1 { color: #1a73e8; }
+        .target-text {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            min-height: 50px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #1557b0; }
+        button:disabled { background-color: #ccc; }
+        .status { margin-top: 10px; font-size: 0.9rem; color: #666; }
+        .match { color: #28a745; font-weight: bold; }
+        .mismatch { color: #dc3545; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h1>Speaking Practice</h1>
+    <p>Hãy đọc to câu sau đây:</p>
+    <div class="target-text" id="targetText">"The quick brown fox jumps over the lazy dog."</div>
+    
+    <button id="startBtn">Nhấn để nói</button>
+    
+    <div id="result">Kết quả của bạn sẽ hiện ở đây...</div>
+    <p class="status" id="status"></p>
+    
+    <button id="nextBtn" style="background-color: #6c757d; margin-top: 10px;">Đổi câu khác</button>
+</div>
+
+<script>
+    const sentences = [
+        "The quick brown fox jumps over the lazy dog.",
+        "Learning English is fun and easy.",
+        "I love practicing my pronunciation every day.",
+        "Practice makes perfect in language learning.",
+        "Technology is changing the way we live."
+    ];
+
+    const targetText = document.getElementById('targetText');
+    const startBtn = document.getElementById('startBtn');
+    const resultDiv = document.getElementById('result');
+    const statusText = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Kiểm tra trình duyệt hỗ trợ
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói. Hãy dùng Chrome hoặc Edge.");
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        startBtn.onclick = () => {
+            recognition.start();
+            statusText.textContent = "Đang lắng nghe...";
+            startBtn.disabled = true;
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"");
+            const original = targetText.textContent.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").trim();
+
+            if (transcript === original) {
+                resultDiv.innerHTML = `<span class="match">Chính xác!</span> <br> Bạn nói: "${event.results[0][0].transcript}"`;
+            } else {
+                resultDiv.innerHTML = `<span class="mismatch">Chưa đúng lắm.</span> <br> Bạn nói: "${event.results[0][0].transcript}"`;
+            }
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            startBtn.disabled = false;
+            statusText.textContent = "Đã dừng nghe.";
+        };
+
+        recognition.onerror = (event) => {
+            statusText.textContent = "Lỗi: " + event.error;
+            startBtn.disabled = false;
+        };
+    }
+
+    nextBtn.onclick = () => {
+        const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
+        targetText.textContent = randomSentence;
+        resultDiv.innerHTML = "Kết quả của bạn sẽ hiện ở đây...";
+        statusText.textContent = "";
+    };
+</script>
+
+</body>
+</html>
